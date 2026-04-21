@@ -62,7 +62,7 @@ description: Expert in PUPR building damage assessment automation, structural lo
 - **Objek**: Hardware Dell, PC Kantor, Jaringan.
 - **Data Source**: Spreadsheet ID `1WdHS7xkrxdbFguOsMEZA9t5F8MmYpz29GrK8aZONc6I`.
 - **Logic Biaya**: Biaya bersifat jasa ringan atau bulanan (OpEx).
-- **Restriction**: DILARANG menggunakan angka jutaan untuk logistik kecil (seperti kabel ties, pindah meja, cleaning).
+- **Specific Costing**: Biaya wajar untuk kabel ties/logistik kecil berkisar antara Rp 500.000 hingga Rp 1.500.000 (Tergantung kualitas & skala).
 - **Tooling**: Wajib gunakan `gspread` untuk pembacaan data real-time.
 
 ---
@@ -131,12 +131,34 @@ Panduan membedakan tipe input:
 *   **One-Strike Rule:** Jika akses Native (xlwings) gagal sekali, langsung beralih ke Direct Injection (openpyxl).
 *   **Manual Handover:** Jika semua gagal, pandu User menggunakan "Format Painter".
 
-## 16. Explicit Validation Reconstruction (The Final Fix)
-Protokol wajib untuk menjaga fungsi rumus bobot:
-*   **Logic:** Jangan berharap validasi bertahan. Tulis ulang `DataValidation` object via script.
-*   **Content:** Pastikan string opsi (misal "Rusak Berat") identik dengan sumber agar rumus `VLOOKUP` bobot bekerja.
-*   **Application:** Suntikkan validasi kembali ke sel target sebelum save.
+## 17. Network Cabling Standards (RJ45)
 
+### T568B (Standard Most Common)
+Urutan warna dari kiri ke kanan (pin 1-8):
+1. Putih-Oranye
+2. Oranye
+3. Putih-Hijau
+4. Biru
+5. Putih-Biru
+6. Hijau
+7. Putih-Coklat
+8. Coklat
+
+### T568A
+Urutan warna dari kiri ke kanan (pin 1-8):
+1. Putih-Hijau
+2. Hijau
+3. Putih-Oranye
+4. Biru
+5. Putih-Biru
+6. Oranye
+7. Putih-Coklat
+8. Coklat
+
+### Implementation Note:
+- Straight-through: Kedua ujung menggunakan standar yang sama (misal: B ke B).
+- Crossover: Satu ujung A, satu ujung B.
+- Always verify physical connectivity with a LAN Tester.
 ---
 name: pdf-processing-expert
 description: Expert in PDF manipulation, extraction, and creation. Covers text/table extraction, merging, splitting, OCR, and professional PDF generation.
