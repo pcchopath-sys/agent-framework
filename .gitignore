@@ -23,8 +23,14 @@ Thumbs.db
 
 # Deploy files (generated)
 dist/
+dist_backup*/
 .build/
 
 # Temporary
 *.tmp
 *.bak
+
+# Large projects - separate repos
+core/
+projects/
+claude-local-ui/
