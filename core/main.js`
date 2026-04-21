@@ -1,0 +1,217 @@
+const { app, BrowserWindow, ipcMain, dialog, Menu, nativeTheme } = require('electron');
+const path = require('path');
+const fs = require('fs').promises;
+const axios = require('axios');
+
+let mainWindow;
+
+// Persistence Files
+const PROJECTS_FILE = path.join(__dirname, 'projects.json');
+const CHATS_FILE = path.join(__dirname, 'chats.json');
+const OLLAMA_URL = 'http://localhost:11434/api/generate';
+
+const MODELS = {
+    coding: 'glm-5.1:cloud',
+    speed: 'qwen3-coder-next:cloud',
+    general: 'gemma4:31b-cloud',
+    complement: 'minimax-m2.7:cloud'
+};
+
+// Session Memory for Knowledge Base (In-memory for current session)
+const sessionContext = {
+    documents: {}, // filePath -> analyzedContent
+    currentProjectId: 'global'
+};
+
+async function getProjects() {
+    try {
+        const data = await fs.readFile(PROJECTS_FILE, 'utf8');
+        return JSON.parse(data);
+    } catch { return []; }
+}
+
+async function saveProjects(projects) {
+    await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));
+}
+
+async function getChats() {
+    try {
+        const data = await fs.readFile(CHATS_FILE, 'utf8');
+        return JSON.parse(data);
+    } catch { return {}; }
+}
+
+async function saveChat(projectId, messages) {
+    const chats = await getChats();
+    chats[projectId || 'global'] = messages;
+    await fs.writeFile(CHATS_FILE, JSON.stringify(chats, null, 2));
+}
+
+async function searchInternet(query) {
+    try {
+        const response = await axios.get(`https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`);
+        return response.data.substring(0, 5000);
+    } catch (error) {
+        return `Search failed: ${error.message}`;
+    }
+}
+
+// --- IPC Handlers ---
+
+ipcMain.handle('ai:chat', async (event, body) => {
+    const { message, useInternet, model, projectId, history, debateMode, fileContent } = body;
+
+    try {
+        let context = '';
+        if (useInternet) {
+            context = await searchInternet(message);
+        }
+
+        // Integration of Session Documents
+        const docsContext = Object.entries(sessionContext.documents)
+            .map(([path, content]) => `File [${path}]: ${content}`)
+            .join('\\n\\n');
+
+        if (docsContext) {
+            context += `\\n\\nKnowledge Base Documents:\\n${docsContext}`;
+        }
+
+        if (fileContent) {
+            context += `\\n\\nImmediate File Content:\\n${fileContent}`;
+        }
+
+        const systemPrompt = `You are "Gemma", a totally native, high-performance AI.
+        Your goal is absolute accuracy and technical precision.
+        Shed all corporate fluff. Be direct, honest, and brutally efficient.`;
+
+        let fullPrompt = `${systemPrompt}\\n\\n${context}\\n\\nConversation History:\\n${history.map(m => `${m.role}: ${typeof m.text === 'object' ? m.text.synthesis : m.text}`).join('\\n')}\\n\\nUser: ${message}\\nAI:`;
+
+        let primaryText, speedText, synthesis;
+
+        if (debateMode) {
+            // Quad-Brain Symphony Execution
+            const [pDraft, sDraft] = await Promise.all([
+                axios.post(OLLAMA_URL, { model: MODELS.coding, prompt: fullPrompt, stream: false }),
+                axios.post(OLLAMA_URL, { model: MODELS.speed, prompt: fullPrompt, stream: false })
+            ]);
+            primaryText = pDraft.data.response;
+            speedText = sDraft.data.response;
+
+            const [gCritique, mCritique] = await Promise.all([
+                axios.post(OLLAMA_URL, { model: MODELS.general, prompt: `${systemPrompt}\\n\\nCritique this for accuracy: ${speedText}`, stream: false }),
+                axios.post(OLLAMA_URL, { model: MODELS.complement, prompt: `${systemPrompt}\\n\\nFind flaws in this logic: ${primaryText}`, stream: false })
+            ]);
+
+            const finalResponse = await axios.post(OLLAMA_URL, {
+                model: MODELS.coding,
+                prompt: `${systemPrompt}\\n\\nDraft A: ${primaryText}\\nDraft B: ${speedText}\\nCritique A: ${gCritique.data.response}\\nCritique B: ${mCritique.data.response}\\n\\nProvide the final native, high-precision answer.`,
+                stream: false
+            });
+            synthesis = finalResponse.data.response;
+        } else {
+            const res = await axios.post(OLLAMA_URL, { model: MODELS.coding, prompt: fullPrompt, stream: false });
+            primaryText = res.data.response;
+            speedText = "Analysis processed by GLM Primary.";
+            synthesis = primaryText;
+        }
+
+        const responsePayload = {
+            primary: primaryText,
+            secondary: speedText,
+            synthesis: synthesis,
+            debateMode: !!debateMode
+        };
+
+        const updatedHistory = history || [];
+        updatedHistory.push({ role: 'User', text: message });
+        updatedHistory.push({ role: 'AI', text: responsePayload });
+        await saveChat(projectId, updatedHistory);
+
+        return responsePayload;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+});
+
+ipcMain.handle('ai:analyzeFile', async (event, { filePath, content }) => {
+    // Quad-Brain pre-analysis of uploaded file
+    const analysisPrompt = `Analyze this file and provide a concise technical summary for context: ${content}`;
+    const res = await axios.post(OLLAMA_URL, { model: MODELS.coding, prompt: analysisPrompt, stream: false });
+
+    sessionContext.documents[filePath] = res.data.response;
+    return { success: true, summary: res.data.response };
+});
+
+ipcMain.handle('ai:getChat', async (event, { projectId }) => {
+    const chats = await getChats();
+    return chats[projectId] || [];
+});
+
+ipcMain.handle('ai:getProjects', async () => getProjects());
+
+ipcMain.handle('ai:addProject', async (event, { name, path: projectPath }) => {
+    const projects = await getProjects();
+    const newProject = { id: Date.now().toString(), name, path: projectPath };
+    projects.push(newProject);
+    await saveProjects(projects);
+    return { success: true, projects };
+});
+
+ipcMain.handle('fs:listFiles', async (event, { path: targetPath }) => {
+    try {
+        const files = await fs.readdir(targetPath || process.cwd(), { withFileTypes: true });
+        return { files: files.map(f => ({ name: f.name, isDirectory: f.isDirectory() })) };
+    } catch (error) { throw new Error(error.message); }
+});
+
+ipcMain.handle('fs:readFile', async (event, { filePath }) => {
+    try {
+        const content = await fs.readFile(filePath, 'utf8');
+        return { content };
+    } catch (error) { throw new Error(error.message); }
+});
+
+ipcMain.handle('fs:writeFile', async (event, { filePath, content }) => {
+    try {
+        await fs.writeFile(filePath, content, 'utf8');
+        return { success: true };
+    } catch (error) { throw new Error(error.message); }
+});
+
+ipcMain.handle('dialog:openDirectory', async () => {
+    const { canceled, filePath } = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+    return canceled ? null : filePath;
+});
+
+ipcMain.handle('dialog:openFile', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({ properties: ['openFile'], multiple: false });
+    return canceled ? null : filePaths[0];
+});
+
+function createWindow() {
+    mainWindow = new BrowserWindow({
+        width: 1300,
+        height: 900,
+        frame: false,
+        titleBarStyle: 'hiddenInset',
+        vibrancy: 'under-window',
+        visualEffectState: 'active',
+        transparent: true,
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js'),
+        },
+        backgroundColor: '#09090b'
+    });
+
+    mainWindow.center();
+    mainWindow.loadFile('public/index.html');
+    return mainWindow;
+}
+
+app.whenReady().then(createWindow);
+
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit();
+});

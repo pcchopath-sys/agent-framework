@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qwen Unleashed</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://www.dialagram.me https://duckduckgo.com http://localhost:11434 http://127.0.0.1:8080;">
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f0f1a;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app-layout {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: rgba(15, 15, 26, 0.98);
+            border-right: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .logo-text h1 {
+            font-size: 14px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text span {
+            font-size: 9px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .new-chat-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .new-chat-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .projects-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .projects-section::-webkit-scrollbar { width: 4px; }
+        .projects-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+        .section-title {
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            padding: 0 8px;
+        }
+
+        .project-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            gap: 8px;
+        }
+
+        .project-item:hover { background: rgba(255,255,255,0.05); }
+        .project-item.active { background: rgba(99, 102, 241, 0.15); }
+        .project-item .icon { font-size: 14px; }
+        .project-item .name {
+            flex: 1;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .project-item .delete-btn {
+            opacity: 0;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.3);
+            cursor: pointer;
+            font-size: 10px;
+            padding: 2px 4px;
+        }
+        .project-item:hover .delete-btn { opacity: 1; }
+        .project-item .delete-btn:hover { color: #f87171; }
+
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .token-section {
+            margin-bottom: 10px;
+            padding: 8px 10px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+        }
+
+        .token-section .label {
+            font-size: 9px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .token-section .value {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #a5b4fc;
+        }
+
+        .status-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .status-pill {
+            padding: 4px 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            font-size: 9px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .status-pill.active .status-dot { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+        .status-pill.offline .status-dot { background: #f87171; }
+        .status-pill.opencode .status-dot { background: #22d3ee; }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(26, 26, 46, 0.98);
+        }
+
+        header {
+            padding: 12px 20px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .model-selector select {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 6px 10px;
+            color: white;
+            font-size: 11px;
+            font-family: inherit;
+            cursor: pointer;
+            min-width: 160px;
+        }
+
+        .model-selector select:focus { outline: none; border-color: #6366f1; }
+
+        .toggle-pill {
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .toggle-pill:hover { background: rgba(255,255,255,0.1); }
+        .toggle-pill.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.4);
+            color: #a5b4fc;
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-area::-webkit-scrollbar { width: 5px; }
+        .chat-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+        .welcome-card {
+            text-align: center;
+            padding: 60px 40px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            margin: auto;
+            max-width: 480px;
+        }
+
+        .welcome-card h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 8px;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-card p {
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+            margin: 0 0 24px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 100%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user { flex-direction: row-reverse; }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .avatar.user-avatar { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .avatar.ai-avatar { background: linear-gradient(135deg, #60a5fa, #a78bfa); }
+
+        .bubble {
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            max-width: 75%;
+            user-select: text;
+        }
+
+        .bubble.user-bubble {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bubble.ai-bubble {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-bottom-left-radius: 4px;
+        }
+
+        .ai-response {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 14px;
+            max-width: 85%;
+            user-select: text;
+        }
+
+        .brain-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .brain-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .brain-card.primary { border-color: rgba(96, 165, 250, 0.3); }
+        .brain-card.secondary { border-color: rgba(167, 139, 250, 0.3); }
+
+        .brain-label {
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            color: #60a5fa;
+        }
+
+        .brain-card.secondary .brain-label { color: #a78bfa; }
+
+        .brain-content {
+            font-size: 12px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.85);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            user-select: text;
+        }
+
+        .synthesis-section {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(99, 102, 241, 0.08));
+            border: 1px solid rgba(236, 72, 153, 0.15);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .synthesis-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .synthesis-header h4 {
+            font-size: 10px;
+            color: #f472b6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .copy-btn {
+            margin-left: auto;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 5px;
+            padding: 3px 8px;
+            font-size: 9px;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+        .copy-btn.copied { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 14px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 10px;
+            width: fit-content;
+        }
+
+        .typing-dots { display: flex; gap: 3px; }
+
+        .typing-dots span {
+            width: 5px;
+            height: 5px;
+            background: #818cf8;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        .typing-text { font-size: 11px; color: rgba(255,255,255,0.5); }
+
+        .input-area {
+            padding: 14px 20px 16px;
+            background: rgba(0,0,0,0.2);
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+        }
+
+        .input-wrapper textarea {
+            width: 100%;
+            min-height: 44px;
+            max-height: 200px;
+            background: transparent;
+            border: none;
+            padding: 12px 14px;
+            color: white;
+            font-size: 13px;
+            font-family: inherit;
+            resize: none;
+            line-height: 1.5;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .input-wrapper textarea::placeholder { color: rgba(255,255,255,0.3); }
+        .input-wrapper textarea:focus { outline: none; }
+
+        .model-badge {
+            position: absolute;
+            top: -7px;
+            right: 10px;
+            padding: 2px 7px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 5px;
+            font-size: 8px;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        .send-btn {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 3px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .send-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(99, 102, 241, 0.4); }
+        .send-btn:active { transform: translateY(0); }
+
+        .file-preview {
+            display: flex;
+            gap: 6px;
+            padding: 0 0 10px;
+            flex-wrap: wrap;
+        }
+
+        .file-preview.hidden { display: none; }
+
+        .file-card {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .file-card .remove {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            cursor: pointer;
+            padding: 1px;
+        }
+
+        .file-card .remove:hover { color: #f87171; }
+
+        .error-msg {
+            color: #f87171;
+            padding: 10px 14px;
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .warning-msg {
+            color: #fbbf24;
+            padding: 10px 14px;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .info-msg {
+            color: #60a5fa;
+            padding: 10px 14px;
+            background: rgba(96, 165, 250, 0.1);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.hidden { display: none; }
+
+        .modal {
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            width: 300px;
+        }
+
+        .modal h3 { font-size: 14px; margin-bottom: 12px; }
+        .modal input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+        .modal input:focus { outline: none; border-color: #6366f1; }
+
+        .modal-btns {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .modal-btns button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .modal-btns .cancel {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .modal-btns .confirm {
+            background: #6366f1;
+            color: white;
+        }
+
+        .settings-section {
+            margin-bottom: 12px;
+        }
+
+        .settings-section label {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .brain-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-icon">Q</div>
+                    <div class="logo-text">
+                        <h1>Qwen Unleashed</h1>
+                        <span>Quad-Brain AI</span>
+                    </div>
+                </div>
+                <button class="new-chat-btn" onclick="openNewProjectModal()">
+                    <span>+</span> New Chat
+                </button>
+            </div>
+
+            <div class="projects-section">
+                <div class="section-title">Projects</div>
+                <div id="projects-list">
+                    <div class="project-item active" onclick="selectProject(null)">
+                        <span class="icon">💬</span>
+                        <span class="name">Global Chat</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="token-section">
+                    <div class="label">Token Usage</div>
+                    <div class="value" id="token-stats">--</div>
+                </div>
+                <div class="status-row">
+                    <div class="status-pill" id="status-dialagram">
+                        <span class="status-dot"></span>
+                        <span>Dialagram</span>
+                    </div>
+                    <div class="status-pill" id="status-opencode">
+                        <span class="status-dot"></span>
+                        <span>OpenCode</span>
+                    </div>
+                    <div class="status-pill" id="status-ollama">
+                        <span class="status-dot"></span>
+                        <span>Ollama</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <header>
+                <div class="header-controls">
+                    <div class="model-selector">
+                        <select id="brain-select"></select>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                    <div class="toggle-pill" id="btn-debate" onclick="toggleDebate()">
+                        <span style="font-size: 12px;">⚖️</span> Debate
+                    </div>
+                    <div class="toggle-pill" id="btn-internet" onclick="toggleInternet()">
+                        <span style="font-size: 12px;">🌐</span> Web
+                    </div>
+                    <div class="toggle-pill" onclick="openSettingsModal()">
+                        <span style="font-size: 12px;">⚙️</span> Settings
+                    </div>
+                </div>
+            </header>
+
+            <div class="chat-area" id="chat-area">
+                <div class="welcome-card" id="welcome-card">
+                    <h2>Welcome to Qwen Unleashed</h2>
+                    <p>High-performance Quad-Brain AI Assistant</p>
+                    <p style="font-size: 11px; color: rgba(255,255,255,0.3);">Start typing to chat...</p>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="file-preview hidden" id="file-preview"></div>
+                <div class="input-row">
+                    <label for="file-upload" class="icon-btn" title="Attach file">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                        </svg>
+                    </label>
+                    <input type="file" id="file-upload" hidden multiple>
+
+                    <div class="input-wrapper">
+                        <span class="model-badge" id="current-model-badge">Qwen 3.6</span>
+                        <textarea id="message-input" placeholder="Ask anything..." rows="1" autocomplete="off"></textarea>
+                    </div>
+
+                    <button class="send-btn" id="send-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="new-project-modal">
+        <div class="modal">
+            <h3>New Project</h3>
+            <input type="text" id="project-name-input" placeholder="Project name...">
+            <div class="modal-btns">
+                <button class="cancel" onclick="closeNewProjectModal()">Cancel</button>
+                <button class="confirm" onclick="confirmNewProject()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="settings-modal">
+        <div class="modal" style="width: 400px;">
+            <h3>⚙️ API Settings</h3>
+            
+            <div class="settings-section">
+                <label style="font-size: 11px; color: #60a5fa;">Dialagram</label>
+                <input type="password" id="api-key-dialagram" placeholder="API Key (leave empty to keep current)">
+            </div>
+            
+            <div class="settings-section">
+                <label style="font-size: 11px; color: #60a5fa;">OpenAI</label>
+                <input type="password" id="api-key-openai" placeholder="API Key">
+            </div>
+            
+            <div class="settings-section">
+                <label style="font-size: 11px; color: #60a5fa;">OpenRouter</label>
+                <input type="password" id="api-key-openrouter" placeholder="API Key">
+            </div>
+            
+            <div style="font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 12px;">
+                Local models (Ollama) detected automatically
+            </div>
+            
+            <div class="modal-btns">
+                <button class="cancel" onclick="closeSettingsModal()">Cancel</button>
+                <button class="confirm" onclick="saveApiSettings()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./renderer.js"></script>
+</body>
+</html>

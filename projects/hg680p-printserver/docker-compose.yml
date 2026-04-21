@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  cups:
+    image: ${CUPS_IMG:-anujdatar/cups:latest}
+    container_name: ${CUPS_CONTAINER_NAME:-cups}
+    restart: unless-stopped
+    ports:
+      - "${CUPS_PORT:-631}:631"
+    volumes:
+      - /opt/stb_printserver/cups/etc:/etc/cups
+      - /opt/stb_printserver/cups/log:/var/log/cups
+    environment:
+      - CUPS_REMOTE_ADMIN=${CUPS_REMOTE_ADMIN:-no}
+      - CUPS_REMOTE_ADMIN_ALLOW_NET=${CUPS_REMOTE_ADMIN_ALLOW_NET:-}
+      - CUPS_HOSTNAME_LOOKUPS=${CUPS_HOSTNAME_LOOKUPS:-off}
+    privileged: true
+    network_mode: host
+
+  sane:
+    image: ${SANE_IMG:-sbs20/scanservjs:latest}
+    container_name: scanner
+    restart: unless-stopped
+    ports:
+      - "${SANE_PORT:-8081}:8081"
+    privileged: true
+    network_mode: host
+
+  hub:
+    image: epson-unified-hub
+    container_name: ${PRINT_PORTAL_CONTAINER_NAME:-epson-unified-hub}
+    restart: unless-stopped
+    ports:
+      - "${WEBUI_PORT:-5000}:5000"
+      - "${WEB_PRINT_PORT:-3000}:3000"
+    volumes:
+      - /opt/stb_printserver/epson-webui:/app
+      - /opt/stb_printserver/runtime.env:/app/runtime.env:ro
+    environment:
+      - REINKPY_SOURCE_MODE=${REINKPY_SOURCE_MODE:-auto}
+      - REINKPY_FIX_STALE_DAYS=${REINKPY_FIX_STALE_DAYS:-21}
+    network_mode: host
+    depends_on:
+      - cups

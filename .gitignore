@@ -1,0 +1,30 @@
+# Environment & Secrets
+.env
+.env.local
+*.key
+*.pem
+*.token
+credentials.json
+
+# Logs
+logs/*.json
+logs/*.log
+!logs/session_state.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Deploy files (generated)
+dist/
+.build/
+
+# Temporary
+*.tmp
+*.bak

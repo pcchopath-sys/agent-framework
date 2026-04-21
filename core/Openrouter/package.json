@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "autoprefixer": "^10.5.0",
+    "electron-packager": "^17.1.2",
+    "playwright": "^1.59.1",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^4.2.2"
+  }
+}
