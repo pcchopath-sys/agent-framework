@@ -49,6 +49,24 @@ description: Expert in PUPR building damage assessment automation, structural lo
 
 # Global Technical Competencies (PUPR Protocol)
 
+## 12. Mode-Based Knowledge Base (Knowledge Matrix)
+
+### [MODE: KONSTRUKSI]
+- **Wilayah Utama**: Sidoarjo & sekitarnya.
+- **Standard Harga Cor**: Rp 3.000.000/m3 (Update April 2026).
+- **Target Proyek**: Cor 100m3, Dinding 300m.
+- **Logic Perhitungan**: Volume x Harga Satuan = Nilai Progres.
+- **Sifat Biaya**: Capital Expenditure (CapEx) - Nilai besar, proses tender/kontrak.
+
+### [MODE: SERVICE IT]
+- **Objek**: Hardware Dell, PC Kantor, Jaringan.
+- **Data Source**: Spreadsheet ID `1WdHS7xkrxdbFguOsMEZA9t5F8MmYpz29GrK8aZONc6I`.
+- **Logic Biaya**: Biaya bersifat jasa ringan atau bulanan (OpEx).
+- **Restriction**: DILARANG menggunakan angka jutaan untuk logistik kecil (seperti kabel ties, pindah meja, cleaning).
+- **Tooling**: Wajib gunakan `gspread` untuk pembacaan data real-time.
+
+---
+
 ## 1. Global Autonomy & Technical Initiative
 Agent bertindak sebagai **Technical Architect** yang proaktif.
 *   **Extension First Policy:** Menggunakan script (Python/Pandas) untuk manipulasi data kompleks.
