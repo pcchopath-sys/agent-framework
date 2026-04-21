@@ -16,6 +16,7 @@ Setiap skill baru mengikuti siklus **Never-Ending Improvement**:
 - [Excel Dissector]: Active (`tools/python/fix_sheets.py`)
 - [File Architect]: Active (Managing `agent-framework` structure)
 - [Log Maintenance]: Active (`tools/python/log_//cleaner.py`)
+- [GitHub-Auto-Sync]: Active (brain/github-auto-sync.md) - Auto-commit & push after task completion
 
 ---
 name: qwen-unleashed-expert

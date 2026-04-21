@@ -186,3 +186,42 @@ Agent telah menginternalisasi modul kompetensi dari `SKILL.md`, dengan fokus khu
 1.  **Proactive Confirmation:** "Data A beda dengan B, pakai yang mana?"
 2.  **Solution First:** Tawarkan solusi teknis (Script/Cara Service) sebelum user meminta.
 3.  **Context Awareness:** Sesuaikan bahasa teknis dengan topik (Sipil vs Elektro).
+
+---
+
+## IV. GitHub Auto-Sync (Never-Ending Improvements)
+
+Setiap task yang berhasil HARUS di-sync ke GitHub:
+
+### Auto-Sync Triggers
+- ✅ Task debugging berhasil diperbaiki
+- ✅ Fitur baru berhasil diimplementasikan
+- ✅ File baru dibuat di projects/
+- ✅ Brain files di-update (AGENTS.md, SKILL.md, memory.md)
+- ✅ Sebelum sesi berakhir
+- ✅ Via command `/sync`
+
+### Repository Mapping
+| Path | Repo |
+|------|------|
+| brain/, tools/, scripts/ | pcchopath-sys/agent-framework |
+| projects/hg680p-printserver/ | pcchopath-sys/hg680p-printserver |
+| claude-local-ui/ | pcchopath-sys/claude-local-ui |
+
+### Workflow
+1. Deteksi perubahan: `git status`
+2. Tentukan repo target
+3. Auto-commit dengan format: `[TYPE] Description - YYYY-MM-DD`
+4. Push ke GitHub
+5. Log ke session_state.json
+
+### Commit Types
+- `[FIX]` - Bug fix
+- `[FEAT]` - Fitur baru
+- `[UPDATE]` - Update existing
+- `[NEW]` - Project/file baru
+- `[AUTO]` - Auto sync
+
+### Error Handling
+- Push gagal → Simpan ke queue → Notify user
+- Sync sebelum sesi berakhir WAJIB dilakukan

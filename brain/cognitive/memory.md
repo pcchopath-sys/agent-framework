@@ -17,6 +17,8 @@
 - Format: ISO 8601 for dates
 - Session state WAJIB include project_file path saat berdiskusi tentang file spesifik
 - STB Server: Use sshpass dengan password tersimpan untuk auto-connect ke 192.168.1.11
+- **GitHub Auto-Sync**: Setiap task selesai → commit → push ke repo yang sesuai
+- **Never-Ending Improvements**: Sync ke GitHub sebelum sesi berakhir
 
 ## Project defaults
 - Tests: Jest with coverage >80%

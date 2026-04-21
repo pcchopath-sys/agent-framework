@@ -1,15 +1,18 @@
 # Environment & Secrets
 .env
 .env.local
+.env.*
 *.key
 *.pem
 *.token
 credentials.json
+!.env.example
 
 # Logs
 logs/*.json
 logs/*.log
 !logs/session_state.json
+!logs/github_sync.json
 
 # Python
 __pycache__/
