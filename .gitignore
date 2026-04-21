@@ -36,4 +36,4 @@ dist_backup*/
 # Large projects - separate repos
 core/
 projects/
-claude-local-ui/
+claude-local-ui/core/dist_backup_20260416_234610/
