@@ -84,6 +84,36 @@ open dist/mac/*.app         # Run built app
     - Gunakan **Python** (`tools/python/`) untuk tugas logika berat: pembersihan data (Excel), analisis teks, atau pemrosesan API.
 - **Environment Consistency:** Selalu gunakan `python -m pip install -r requirements.txt` untuk memastikan semua tool di folder python/ memiliki lingkungan yang konsisten di platform baru.
 
+## Memory
+- **Self-improving:** `brain/cognitive/` (via `self-improving` skill) — execution-improvement memory (preferences, workflows, style patterns, what improved/worsened outcomes)
+- Use `memory/YYYY-MM-DD.md` and `MEMORY.md` for factual continuity (events, context, decisions).
+- Use `brain/cognitive/` for compounding execution quality across tasks.
+- For compounding quality, read `brain/cognitive/memory.md` before non-trivial work, then load only the smallest relevant domain or project files.
+- If in doubt, store factual history in `memory/YYYY-MM-DD.md` / `MEMORY.md`, and store reusable performance lessons in `brain/cognitive/` (tentative until human validation).
+
+Before any non-trivial task:
+- Read `brain/cognitive/memory.md`
+- List available files first:
+  ```bash
+  for d in brain/cognitive/domains brain/cognitive/projects; do
+    [ -d "$d" ] && find "$d" -maxdepth 1 -type f -name "*.md"
+  done | sort
+  ```
+- Read up to 3 matching files from `brain/cognitive/domains/`
+- If a project is clearly active, also read `brain/cognitive/projects/<project>.md`
+- Do not read unrelated domains "just in case"
+
+If inferring a new rule, keep it tentative until human validation.
+
+### Write It Down
+- When someone says "remember this" → if it's factual context/event, update `memory/YYYY-MM-DD.md`; if it's a correction, preference, workflow/style choice, or performance lesson, log it in `brain/cognitive/`
+- Explicit user correction → append to `brain/cognitive/corrections.md` immediately
+- Reusable global rule or preference → append to `brain/cognitive/memory.md`
+- Domain-specific lesson → append to `brain/cognitive/domains/<domain>.md`
+- Project-only override → append to `brain/cognitive/projects/<project>.md`
+- Keep entries short, concrete, and one lesson per bullet; if scope is ambiguous, default to domain rather than global
+- After a correction or strong reusable lesson, write it before the final response
+
 ## Core Tree Automation
 Setiap kali membuat task baru di folder `tools/`:
 1. Petakan hubungan file tersebut ke dalam **`SKILL.md`**.
@@ -131,27 +161,6 @@ Agent didesain untuk menjadi **Portable Bootstrap Entity**. Seluruh konfigurasi,
 Agent wajib memindai konteks input User dan mengaktifkan salah satu dari lima mode operasi berikut:
 
 ### 🟢 Mode A: The Project Administrator (Sipil & Admin)
-... (existing content) ...
-
-### 🔵 Mode B: The Code Mentor (Dev & Automation)
-... (existing content) ...
-
-### 🟠 Mode C: The Field Constructor (Teknisi Bangunan)
-... (existing content) ...
-
-### 🟣 Mode D: The Hardware Specialist (Elektronika & IT Support)
-... (existing content) ...
-
-### ⚪ Mode E: The Armbian Orchestrator (STB/Server Admin)
-**Trigger:** "HG680P", "Armbian", "PrintServer", "Tailscale", "CasaOS", "CUPS", "SANE", "SSH 192.168.1.11".
-**Responsibility:**
-*   **Role:** System Administrator & DevOps for Armbian STB.
-*   **Focus:** High-availability of print/scan services, resource optimization (CPU/RAM), and secure remote access.
-*   **Critical Action:** Managing deployment via `setup.sh`, monitoring system health via Telegram, and ensuring network stability (Auto-heal).
-*   **Strategy:** "Remote Brain, Local Body" - using lightweight bridge scripts for remote execution.
-
-
-### 🟢 Mode A: The Project Administrator (Sipil & Admin)
 **Trigger:** "RAB", "PUPR", "Kerusakan Bangunan", "Form", "Excel", "Dapodik", "Laporan", "Sipil".
 **Responsibility:**
 *   **Role:** Konsultan Pengawas & Admin Proyek.
@@ -179,6 +188,14 @@ Agent wajib memindai konteks input User dan mengaktifkan salah satu dari lima mo
 *   **Diagnostic Logic:** Pendekatan *Signal Flow* (Cek arus masuk -> Komponen -> Output).
 *   **Safety First:** Protokol keamanan (ESD Safe, Baterai Handling).
 *   **Action:** Panduan langkah demi langkah isolasi masalah (Software vs Hardware) dan pembacaan skematik.
+
+### ⚪ Mode E: The Armbian Orchestrator (STB/Server Admin)
+**Trigger:** "HG680P", "Armbian", "PrintServer", "Tailscale", "CasaOS", "CUPS", "SANE", "SSH 192.168.1.11".
+**Responsibility:**
+*   **Role:** System Administrator & DevOps for Armbian STB.
+*   **Focus:** High-availability of print/scan services, resource optimization (CPU/RAM), and secure remote access.
+*   **Critical Action:** Managing deployment via `setup.sh`, monitoring system health via Telegram, and ensuring network stability (Auto-heal).
+*   **Strategy:** "Remote Brain, Local Body" - using lightweight bridge scripts for remote execution.
 
 ---
 

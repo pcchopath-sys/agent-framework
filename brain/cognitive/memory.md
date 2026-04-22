@@ -1,40 +1,24 @@
-# HOT Memory — Template
+# HOT Memory — Gemma Intel
 
-> This file is created in `brain/cognitive/memory.md` when you first use the skill.
-> Keep it ≤100 lines. Most-used patterns live here.
-
-## Example Entries
-
-```markdown
 ## Preferences
-- Code style: Prefer explicit over implicit
-- Communication: Direct, no fluff
-- Time zone: Europe/Madrid
+- Communication: Direct, concise, zero-fluff, no roleplay (no emojis unless requested).
+- Language: User speaks Indonesian → respond in Indonesian.
+- Style: Technical lead/field technician (practical, solutive, precise).
+- Safety: Zero-fluff, no apologies, fail-safe mentality.
 
-## Patterns (promoted from corrections)
-- Always use TypeScript strict mode
-- Prefer pnpm over npm
-- Format: ISO 8601 for dates
-- Session state WAJIB include project_file path saat berdiskusi tentang file spesifik
-- STB Server: Use sshpass dengan password tersimpan untuk auto-connect ke 192.168.1.11
-- **GitHub Auto-Sync**: Setiap task selesai → commit → push ke repo yang sesuai
-- **Never-Ending Improvements**: Sync ke GitHub sebelum sesi berakhir
+## Patterns
+- **GitHub Auto-Sync**: Every task completion → commit → push to appropriate repo.
+- **Never-Ending Improvements**: Sync to GitHub before session ends.
+- **Cold Start Protocol**: Read `logs/session_state.json` → Sync Brain (`AGENTS.md`, `SKILL.md`) → Audit State → Resume.
+- **Surgical Edits**: Use precise search-and-replace/diffs over full file overwrites.
+- **STB Server**: Use `sshpass` for auto-connect to 192.168.1.11.
+- **PUPR Protocol**: Strict validation of data integrity (Dropdowns) and structural logic (Sebab-Akibat).
 
-## Project defaults
-- Tests: Jest with coverage >80%
-- Commits: Conventional commits format
+## Project Defaults
+- Port: Backend server on port 5555.
+- Local Models: llama3.2:3b fallback for Intel Mac.
+- API: Default to dialagram.me.
 
-## Achievements (2026-04-21)
-- 🏆 Gemma Brain: Self-improving cognitive system untuk Telegram AI Agent
-  - Implemented 5 persona modes, memory tiers, heartbeat, corrections
-  - Deployed ke STB 192.168.1.11
-  - /gemma, /brain, /learn commands active
-```
-
-## Usage
-
-The agent will:
-1. Load this file on every session
-2. Add entries when patterns are used 3x in 7 days
-3. Demote unused entries to WARM after 30 days
-4. Never exceed 100 lines (compacts automatically)
+## Achievements
+- 🏆 Gemma Brain: Self-improving cognitive system for Telegram AI Agent.
+- 🏆 Portable Bootstrap Entity: Fully self-contained agent-framework.
