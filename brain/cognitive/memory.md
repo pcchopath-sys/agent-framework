@@ -20,5 +20,5 @@
 - API: Default to dialagram.me.
 
 ## Achievements
-- 🏆 Gemma Brain: Self-improving cognitive system for Telegram AI Agent.
-- 🏆 Portable Bootstrap Entity: Fully self-contained agent-framework.
+- 🏆 ReAct Reasoning Loop: Think → Action → Observation → Final Answer (v3.2)
+- 🏆 Toolbox: read_file, list_files, run_bash, web_search, brain_search
